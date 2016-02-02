@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+   <title>{% block title %}SmartVisit{% endblock %}</title>
+</head>
+<body>
+<section class = "page-header">
+<header><h2>SmartVisit</h2></header>
+    <nav class = "page-header">
+       {% block nav %}
+       <ul>
+            <li><a href="/smartvisit/home">Accueil</a></li>
+			<li><a href="/smartvisit/request">Demander une visite</a></li>
+            <li><a href="/smartvisit/places">Proposer un lieu</a></li>
+            <li><a href="/smartvisit/user">Paramètres</a></li>
+	   </ul>
+       {% endblock %}
+   </nav>
+ </section>
+   <section id="content">
+       {% block content %}{% endblock %}
+   </section>
+</body>
+</html>

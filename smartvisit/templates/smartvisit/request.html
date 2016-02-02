@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>SMARTVISIT</title>
+    <link rel="shortcut icon" href="{% static 'bootstrap/theme/img/favicon.ico'%}">
+    <link href="{% static 'bootstrap/theme/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/theme/css/smartvisit.css' %}" rel="stylesheet">
+
+    <link href="{% static 'bootstrap/theme/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'http://fonts.googleapis.com/css?family=Montserrat:400,700'%}" rel="stylesheet" type="text/css">
+    <link href="{% static 'http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic'%}" rel="stylesheet" type="text/css">
+
+
+
+        <script src="{% static 'bootstrap/theme/js/jquery.js'%}"></script>
+
+        <!-- Script Gmaps -->
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=falsekey=AIzaSyAzjp6H9ZHtmUjf7b0mlgkGOrjD7sktFHQ&libraries=geometry"></script>
+
+
+        <script type="text/javascript">
+        var defaut = true;
+
+
+
+
+
+        function initialiser() {
+            // Carte initialement affichée, centrée sur Paris
+            var latlng = new google.maps.LatLng(48.856614, 2.352222);
+            var options = {
+                center: latlng,
+                zoom: 13,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            // Remplissage des champs automatiques à l'ouverture de la page
+            if (defaut == true){
+                document.getElementById('id_startpoint').value = "Tuileries, Paris";
+                document.getElementById('id_endpoint').value = "Tuileries, Paris";
+                document.getElementById('id_heures').value = 4;
+                document.getElementById('id_minutes').value = 0;
+                walking();  //Visite à pied par défaut
+                monument(); //Visite de monuments par défaut
+            }
+            // Création de la carte
+            var carte = new google.maps.Map(document.getElementById("carte"), options);
+
+            //Points de passage potentiels
+            var waypoints_monument = {{waypoints_monument|safe}};
+            var waypoints_nature = {{waypoints_nature|safe}};
+            var waypoints_art = {{waypoints_art|safe}};
+            var waypoints_quartier = {{waypoints_quartier|safe}};
+            var waypoints_insolite = {{waypoints_insolite|safe}};
+            var waypoints_restaurant = {{waypoints_restaurant|safe}};
+
+            for (i = 0; i < waypoints_monument.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_monument[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_monument.png'%}",
+                        url:waypoints_monument[i]['id'],
+                        title:waypoints_monument[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    $('#'+this.url).modal('show');
+                });
+            }
+
+            for (i = 0; i < waypoints_nature.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_nature[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_nature.png'%}",
+                        url:waypoints_nature[i]['id'],
+                        title:waypoints_nature[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    $('#'+this.url).modal('show');
+                });
+            }
+            for (i = 0; i < waypoints_art.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_art[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_art.png'%}",
+                        url:waypoints_art[i]['id'],
+                        title:waypoints_art[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    //window.location.href=this.url;
+                    $('#'+this.url).modal('show');
+                });
+            }
+            for (i = 0; i < waypoints_quartier.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_quartier[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_quartier.png'%}",
+                        url:waypoints_quartier[i]['id'],
+                        title:waypoints_quartier[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    //window.location.href=this.url;
+                    $('#'+this.url).modal('show');
+                });
+            }
+
+            for (i = 0; i < waypoints_insolite.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_insolite[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_insolite.png'%}",
+                        url:waypoints_insolite[i]['id'],
+                        title:waypoints_insolite[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    //window.location.href=this.url;
+                    $('#'+this.url).modal('show');
+                });
+            }
+            for (i = 0; i < waypoints_restaurant.length; i++) { 
+                var marqueur = new google.maps.Marker({
+                        position:waypoints_restaurant[i]['location'],
+                        map:carte,
+                        icon:"{% static 'bootstrap/theme/img/ic_restaurant.png'%}",
+                        url:waypoints_restaurant[i]['id'],
+                        title:waypoints_restaurant[i]['name'],
+                    });
+                google.maps.event.addListener(marqueur, 'click',
+                function() {
+                    //window.location.href=this.url;
+                    $('#'+this.url).modal('show');
+                });
+            }
+
+
+
+
+
+            // Si l'utilisateur réalise une requête
+            "{% if envoi %}"
+            var defaut = false;
+
+            // Si les modes et la catégorie active sont choisies dans le formulaire on déclenche la fonction concernée pour la mise en valeur des boutons soulignant le choix de l'utilisateur après le chargement de la page
+            if (document.getElementById('id_mode').options[0].selected == true){walking();}
+            if (document.getElementById('id_mode').options[1].selected == true){driving();}
+            if (document.getElementById('id_mode').options[2].selected == true){bicycling();}
+            if (document.getElementById('id_category').options[0].selected == true){monument();}
+            if (document.getElementById('id_category').options[1].selected == true){nature();}
+            if (document.getElementById('id_category').options[2].selected == true){art();}
+            if (document.getElementById('id_category').options[3].selected == true){quartier();}
+            if (document.getElementById('id_category').options[4].selected == true){insolite();}
+            if (document.getElementById('id_category').options[5].selected == true){restaurant();}  
+
+
+            // Coordonnées des waypoints qui seront affichés
+            
+
+            var real_waypoints = {{waypoints_coord|safe}};
+            
+            
+            
+
+            // Affichage de l'ensemble des marqueurs de chemins
+            //Points de départ et arrivée
+            var marker_sp = new google.maps.Marker({position: {{geo_sp|safe}},map: carte,title: 'Start Point'});
+            var marker_ep = new google.maps.Marker({position: {{geo_ep|safe}},map: carte,title: 'End Point'});
+
+            var lineSymbol = {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW};
+
+            // Decodage de la polyline et affichage du chemin
+            var path1 = google.maps.geometry.encoding.decodePath("{{path_request}}");
+            var Path_user = new google.maps.Polyline({
+                path: path1,
+                geodesic: true,
+                strokeColor: '#FF0000',strokeOpacity: 1.0,strokeWeight: 2, 
+                icons: [{icon: lineSymbol,offset: '100%',repeat: '250px'}]
+            });
+
+            // Bornes de l'affichage de la carte
+            var latlngbounds = new google.maps.LatLngBounds();
+            var boundNE = new google.maps.LatLng({{boundsNE|safe}});
+            var boundSW = new google.maps.LatLng({{boundsSW|safe}});
+            latlngbounds.extend(boundNE);
+            latlngbounds.extend(boundSW);
+
+            // Affichage final de la carte centrée sur le chemin et avec les bornes définies 
+            Path_user.setMap(carte);
+            carte.setCenter(Path_user.getPath().getAt(Math.round(Path_user.getPath().getLength() / 2)));
+            carte.fitBounds(latlngbounds);
+
+            "{% endif %}"
+            }
+
+
+            // Remet à jour le formulaire avec une position par défaut à New York et à pied
+            function newyork() {
+
+                document.getElementById('id_startpoint').value = "401 Broadway, NYC";
+                document.getElementById('id_endpoint').value = "401 Broadway, NYC";
+                document.getElementById('id_heures').value = 4;
+                document.getElementById('id_minutes').value = 0;
+                walking();
+            }
+
+            // Fonctions pour le mode de transport, changeant la valeur dans le formulaire (choix invisible) et activant l'affichage des boutons (à l'activation d'un des 3 modes on désactive les autres)
+            function walking() {
+                document.getElementById('id_mode').value = "walking";
+                document.getElementById('walking').className = "btn-social btn-outline active";
+                document.getElementById('driving').className = "btn-social btn-outline";
+                document.getElementById('bicycling').className = "btn-social btn-outline";
+            }
+            function driving() {
+                document.getElementById('id_mode').value = "driving";
+                document.getElementById('driving').className = "btn-social btn-outline active";
+                document.getElementById('walking').className = "btn-social btn-outline";
+                document.getElementById('bicycling').className = "btn-social btn-outline";
+            }
+            function bicycling() {
+                document.getElementById('id_mode').value = "bicycling";
+                document.getElementById('bicycling').className = "btn-social btn-outline active";
+                document.getElementById('walking').className = "btn-social btn-outline";
+                document.getElementById('driving').className = "btn-social btn-outline";
+            }
+
+
+
+            // Fonctions pour le choix des catégories
+            // Avec : 
+            //    - Sélection dans le formulaire multi-choix
+            //    - Activation du bouton quand on clique dessus, désactivation quand on clique à nouveau
+            var cat1 = false;
+            function monument() {
+                var catchoice = document.getElementById('id_category');
+                if (cat1 == false){
+                    document.getElementById('id_category').options[0].selected = true;
+                    document.getElementById('monument').className = "btn-social btn-outline active";
+                    cat1 = true;
+                } else{
+                    document.getElementById('id_category').options[0].selected = false;
+                    document.getElementById('monument').className = "btn-social btn-outline";
+                    cat1=false;
+                }
+
+            }
+
+            var cat2 = false;
+            function nature() {
+                var catchoice = document.getElementById('id_category');
+                if (cat2 == false){
+                    document.getElementById('id_category').options[1].selected = true;
+                    document.getElementById('nature').className = "btn-social btn-outline active";
+                    cat2 = true;
+                } else{
+                    document.getElementById('id_category').options[1].selected = false;
+                    document.getElementById('nature').className = "btn-social btn-outline";
+                    cat2 = false;
+                }
+
+            }
+
+            var cat3 = false;
+            function art() {
+                var catchoice = document.getElementById('id_category');
+                if (cat3 == false){
+                    document.getElementById('id_category').options[2].selected = true;
+                    document.getElementById('art').className = "btn-social btn-outline active";
+                    cat3 = true;
+                } else{
+                    document.getElementById('id_category').options[2].selected = false;
+                    document.getElementById('art').className = "btn-social btn-outline";
+                    cat3 = false;
+                }
+
+            }
+
+            var cat4 = false;
+            function quartier() {
+                var catchoice = document.getElementById('id_category');
+                if (cat4 == false){
+                    document.getElementById('id_category').options[3].selected = true;
+                    document.getElementById('quartier').className = "btn-social btn-outline active";
+                    cat4 = true;
+                } else{
+                    document.getElementById('id_category').options[3].selected = false;
+                    document.getElementById('quartier').className = "btn-social btn-outline";
+                    cat4 = false;
+                }
+
+            }
+
+
+            var cat5 = false;
+            function insolite() {
+                var catchoice = document.getElementById('id_category');
+                if (cat5 == false){
+                    document.getElementById('id_category').options[4].selected = true;
+                    document.getElementById('insolite').className = "btn-social btn-outline active";
+                    cat5 = true;
+                } else{
+                    document.getElementById('id_category').options[4].selected = false;
+                    document.getElementById('insolite').className = "btn-social btn-outline";
+                    cat5 = false;
+                }
+
+            }
+
+            var cat6 = false;
+            function restaurant() {
+                var catchoice = document.getElementById('id_category');
+                if (cat6 == false){
+                    document.getElementById('id_category').options[5].selected = true;
+                    document.getElementById('restaurant').className = "btn-social btn-outline active";
+                    cat6 = true;
+                } else{
+                    document.getElementById('id_category').options[5].selected = false;
+                    document.getElementById('restaurant').className = "btn-social btn-outline";
+                    cat6 = false;
+                }
+
+            }
+
+
+
+            // Fonction pour la possibilité de faire une balade en boucle
+            // Masque le champ d'arrivée et le rend égal au champ de départ à l'activation
+            var loopvisit = false;
+
+            function loop() {
+                if (loopvisit == false){
+                    document.getElementById('id_endpoint').value = document.getElementById('id_startpoint').value;
+                    document.getElementById('id_endpoint').className = "hidden_form";
+                    document.getElementById('loop').className = "btn-social btn-outline active";
+                    loopvisit = true;
+                } else{
+                    document.getElementById('id_endpoint').value = "";
+                    document.getElementById('id_endpoint').className = "not_hidden";
+                    document.getElementById('loop').className = "btn-social btn-outline";
+                    loopvisit = false;
+                }
+
+            }
+
+
+
+
+            </script>
+
+
+
+
+
+
+
+
+
+
+
+        </head>
+
+        <body onload="initialiser()" id="page-top" class = "index">
+
+            <!-- Navigation -->
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="container">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header page-scroll">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/home">SMARTVISIT</a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="hidden">
+                                <a href="/home"></a>
+                            </li>
+                            <li class="page-scroll">
+                                <a href="/request">Visite</a>
+                            </li>
+                            <li class="page-scroll">
+                                <a href="/post">Proposer</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- /.navbar-collapse -->
+                </div>
+                <!-- /.container-fluid -->
+            </nav>
+
+            <!-- Portfolio Grid Section -->
+            <section id="visite" class="mainsection">
+                <div class="container maincontainer">
+                    <div class="row mainrow">
+
+
+                        <div class="col-lg-2 gauche">
+                        <!-- Formulaire issu de Django (forms.py) -->
+                            <h4 style='text-align:center' class = "test">Paramètres</h4>
+                            {% if envoi %}Requête effectuée{% endif %}
+
+                            <form action="{% url "smartvisit.views.request_user" %}" method="post" role="form">
+                                <div class="row control-group">
+                                    <div class="form-group col-xs-12 floating-label-form-group controls">
+                                        {% csrf_token %}
+                                        {{ form }}
+                                    </div>
+                                    <p style="text-align:center">
+                                        <input type="submit" value="Envoyer"/>
+                                    </p>
+                                </div>
+                            </form>
+                        </br>
+                        <!-- Ensemble des boutons de contrôle -->
+                        <div class ="boutons">
+                            <ul class="list-inline" style="color:#2c3e50">
+                                <li style="color:#2c3e50">
+                                    <a onclick="geoloc()" class="btn-social btn-outline" title = "Géolocalisation"><i class="fa fa-fw fa-location-arrow"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="newyork()" class="btn-social btn-outline" title = "Paramètres par Défaut"><i class="fa fa-fw fa-check"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="loop()" class="btn-social btn-outline" id ="loop" title = "Faire une boucle"><i class="fa fa-fw fa-refresh"></i></a>
+                                </li>
+
+
+                                <li style="color:#2c3e50">
+                                    <a onclick="walking()" class="btn-social btn-outline" id = "walking"><i class="fa fa-fw fa-male"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="driving()" class="btn-social btn-outline" id = "driving"><i class="fa fa-fw fa-car"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="bicycling()" class="btn-social btn-outline" id = "bicycling"><i class="fa fa-fw fa-bicycle"></i></a>
+                                </li>
+
+
+                                <li style="color:#2c3e50">
+                                    <a onclick="monument()" class="btn-social btn-outline" id = "monument" title = "Monuments, Architecture, et Lieux remarquables"><i class="fa fa-fw fa-institution"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="nature()" class="btn-social btn-outline" id = "nature" title = "Nature, Parcs"><i class="fa fa-fw fa-tree"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="art()" class="btn-social btn-outline" id = "art" title = "Art, Musées"><i class="fa fa-fw fa-paw"></i></a>
+                                </li>
+
+
+                                <li style="color:#2c3e50">
+                                    <a onclick="quartier()" class="btn-social btn-outline" id = "quartier" title = "Quartiers"><i class="fa fa-fw fa-home"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="insolite()" class="btn-social btn-outline" id = "insolite" title = "Insolite"><i class="fa fa-fw fa-heart"></i></a>
+                                </li>
+                                <li style="color:#2c3e50">
+                                    <a onclick="restaurant()" class="btn-social btn-outline" id = "restaurant" title = "Restaurants et Bars"><i class="fa fa-fw fa-cutlery"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Affichage des résultats -->
+
+                    <div class="col-lg-2 droite">
+
+                        <h4 style='text-align:center'> Résultats</h4>
+                        {% if envoi %}
+                        Visite proposée
+                        <ul>
+                            <li> Durée : {{duration_request}}</li>
+                            <li> Distance : {{distance_request}}</li>
+                        </ul>
+                        {% if possible %}<h6 style="text-align:center">Trajet possible</h6>{% endif %}
+                        <!-- Montre le mode et la catégorie choisie pour la visite -->
+                        <ul class="list-inline boutons">
+                            {% if mode == "walking" %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline" id = "walking"><i class="fa fa-fw fa-male"></i></a>
+                            </li>
+                            {% elif mode == "driving" %}
+                            <li>
+                                <a class="btn-display btn-displayoutline" id = "driving"><i class="fa fa-fw fa-car"></i></a>
+                            </li>
+                            {% elif mode == "bicycling" %}
+                            <li>
+                                <a class="btn-display btn-displayoutline" id = "bicycling"><i class="fa fa-fw fa-bicycle"></i></a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        <ul class="list-inline boutons">
+                            {% if "monument" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-institution"></i></a>
+                            </li>
+                            {% endif %}
+                            {% if "nature" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-tree"></i></a>
+                            </li>
+                            {% endif %}
+                            {% if "art" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-paw"></i></a>
+                            </li>
+                            {% endif %}
+                            {% if "quartier" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-home"></i></a>
+                            </li>
+                            {% endif %}
+                            {% if "insolite" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-heart"></i></a>
+                            </li>
+                            {% endif %}
+                            {% if "restaurant" in categories %}
+                            <li style>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-cutlery"></i></a>
+                            </li>
+                            {% endif %}
+                        </ul>
+
+
+                    </br>
+                    <!-- Affichage des points de passage en montrant l'ordre et le nom avec un lien vers la page qui donne plus d'information -->
+                    <h5 style='text-align:center'>Points de passage</h5>
+                    <ul>
+                        {% for waypoint in waypoints_display %}
+                        <li>{{waypoint.7}} : <a href="#{{waypoint.0}}" class="portfolio-link" data-toggle="modal">{{ waypoint.1 }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+
+                    <!-- Si l'utilisateur n'a pas encore fait de requête, on affiche un descriptif des options possibles -->
+                    <h5 style="text-align:center;padding-top:50px">Rentrez les paramètres de la visite</h5>
+                    <div style="padding-top:20px">
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-institution"></i></a>
+                            </li>
+                            <li>Monuments</li>
+                        </ul>
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-tree"></i></a>
+                            </li>
+                            <li>Nature et parcs</li>
+                        </ul>
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-paw"></i></a>
+                            </li>
+                            <li>Art et musées</li>
+                        </ul>
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-home"></i></a>
+                            </li>
+                            <li>Quartiers</li>
+                        </ul>
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-heart"></i></a>
+                            </li>
+                            <li>Insolite</li>
+                        </ul>
+                        <ul class="list-inline boutons textleft">
+                            <li>
+                                <a class="btn-display btn-displayoutline"><i class="fa fa-fw fa-cutlery"></i></a>
+                            </li>
+                            <li>Restaurants et bars</li>
+                        </ul></div>
+
+                        {% endif %}
+
+
+
+                    </div>
+
+                    <!-- Champs de requête -->
+                    <div class="col-lg-8 gauche" style="padding:0" id ='carte'>
+
+                    </div>
+
+
+
+                    <!-- Autres fonctions JS pour la géolocalisation de l'utilisateur -->
+                    <script type="text/javascript">
+
+
+                    function geoloc() {
+                      var startPos;
+                      var geoOptions = {
+                        enableHighAccuracy: true
+                    };
+
+                    var geoSuccess = function(position) {
+                        startPos = position;
+                        var idstart = document.getElementById('id_startpoint');
+                        idstart.value = startPos.coords.latitude + " , "+ startPos.coords.longitude;
+                    };
+                    var geoError = function(error) {
+                        console.log('Error occurred. Error code: ' + error.code);
+                        // error.code can be:
+                        //   0: unknown error
+                        //   1: permission denied
+                        //   2: position unavailable (error response from location provider)
+                        //   3: timed out
+                    };
+                    navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
+                    }
+
+
+
+
+
+
+
+                    </script>
+
+
+
+
+                    </div>
+                    </div>
+                    </section>
+
+
+
+
+
+<!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+<div class="scroll-top page-scroll visible-xs visible-sm">
+    <a class="btn btn-primary" href="#page-top">
+        <i class="fa fa-chevron-up"></i>
+    </a>
+</div>
+
+<!-- Portfolio Modals -->
+
+<!-- Pour chaque point de passage on crée une page qui affiche les informations supplémentaires quand on clique sur le lien -->
+{% for place in all_places %}
+        <div class="portfolio-modal modal fade" id="{{place.id}}" tabindex="-1" role="dialog" aria-hidden="true" style="width:100%">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container" style="width:100%">
+                <div class="row">
+                    
+                        <div class="modal-body">
+                            <div class="row">
+                            <h2 id='titre'>{{place.adresse}}</h2>
+                            <hr class="star-primary"></div>
+                            <div class="row">
+                            <div class="col-lg-6" id = "place_contenu">
+                                <img id = 'photo' src = "{{place.photo}}">
+                            </div>
+                            <div class="col-lg-6" id="place_contenu" style="padding-top:8%">
+                            <h3 id ='ville'>{{place.ville}}</h3>
+                            <h5 id ='categorie'>{{place.categorie}}</h5>
+                            
+                            <p id = 'description'>{{place.description}}</p>
+                            <a href="{{place.wikipedia}}" id = 'wikipedia' class ="btn-display btn-displayoutline" style="color:#233140"><i class="fa fa-fw fa-wikipedia-w">W</i></a>
+                            </div></div>
+                            <div class="row">
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><i class="fa fa-times"></i> Close</button></div>
+                        </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+
+            <!-- jQuery -->
+            <script src="{% static 'bootstrap/theme/js/jquery.js'%}"></script>
+
+            <!-- Bootstrap Core JavaScript -->
+            <script src="{% static 'bootstrap/theme/js/bootstrap.min.js'%}"></script>
+
+            <!-- Plugin JavaScript -->
+            <script src="{% static 'http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js'%}"></script>
+            <script src="{% static 'bootstrap/theme/js/classie.js'%}"></script>
+            <script src="{% static 'bootstrap/theme/js/cbpAnimatedHeader.js'%}"></script>
+
+            <!-- Contact Form JavaScript -->
+            <script src="{% static 'bootstrap/theme/js/jqBootstrapValidation.js'%}"></script>
+            <script src="{% static 'bootstrap/theme/js/contact_me.js'%}"></script>
+
+            <!-- Custom Theme JavaScript -->
+            <script src="{% static 'bootstrap/theme/js/freelancer.js'%}"></script>
+
+        </body>
+
+        </html>

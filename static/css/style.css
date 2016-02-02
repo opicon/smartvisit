@@ -1,0 +1,34 @@
+h1 {
+    color: #FCA205;
+	font-family: 'Arial';
+}
+
+.page-header {
+    background-color: #87CEFA;
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+}
+
+body {
+	font-family:'Calibri';
+}
+
+div#gauche {
+    float: left;
+    width: 400px;
+}
+
+div#resultat {
+    width: 200px;
+    background: lightblue;
+}
+
+
+
+
+#map_canvas { 
+	/*width: 100%;*/
+	height: 100%;
+	float: right;
+	padding-right: 100px
+	}
